@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 
 public class CarLot {
-	private Car[] inventory;
+	private ArrayList<Car> inventory; //change datatype to ArrayList
 	private int numberOfCars = 0;
 	private int capacity = 0;
 	
@@ -14,29 +14,28 @@ public class CarLot {
 	
 	public CarLot(int capacity) {
 		this.capacity = capacity;
-		this.inventory = new Car[capacity];
+		this.inventory = new ArrayList<>(); // initialize as ArrayList
 	}
 	
 	public void addCar(String id, int mileage, int mpg, double cost, double salesPrice) {
 		if (numberOfCars < capacity) {
-			this.inventory[numberOfCars] = new Car(id, mileage, mpg, cost, salesPrice);
+			this.inventory.add(new Car(id, mileage, mpg, cost, salesPrice)); // add to ArrayList
 			numberOfCars++;
 		}
 	}
 	
-	public Car[] getInventory() {
-		Car[] allCars = new Car[numberOfCars];
-		for (int i = 0; i < numberOfCars; i++) {
-			allCars[i] = this.inventory[i];
-		}
-		return allCars;
+	public ArrayList<Car> getInventory() {
+		ArrayList<Car> allCars = new ArrayList<Car>(); // specified type argument explicitly
+	    for (Car car : this.inventory) {
+	        allCars.add(car);
+	    }
+	    return allCars;
 	}
 	
 	public Car findCarByIdentifier(String identifier) {
-		for (int x = 0; x < this.inventory.length; x++) {
-			Car aCar = this.inventory[x];
-			if (aCar.getId().equals(identifier)) {
-				return aCar;
+		for (Car aCar : this.inventory) {
+            if (aCar.getId().equals(identifier)) {
+                return aCar;
 			}
 		}
 		return null;
@@ -51,25 +50,23 @@ public class CarLot {
 		}
 	}
 	
-	public Car[] getCarsInOrderOfEntry() { return this.inventory; }
+	public ArrayList<Car> getCarsInOrderOfEntry() {
+        return new ArrayList<>(this.inventory); // return a copy of the ArrayList
+    }
 	
 	public ArrayList<Car> getCarsSortedByMPG() {
-		ArrayList<Car> allCars = new ArrayList<>();
-		for (int i = 0; i < numberOfCars; i++) {
-			allCars.add(this.inventory[i]);
-		}
-		Collections.sort(allCars, (Car c1, Car c2) -> c2.compareMPG(c1));
-		return allCars;
+		ArrayList<Car> allCars = new ArrayList<>(this.inventory); // copy inventory to ArrayList
+        Collections.sort(allCars, (Car c1, Car c2) -> c2.compareMPG(c1));
+        return allCars;
 	}
 	
 	public Car getCarWithBestMPG() {
 		Car rtn = null;
-		int bestMpg = -1;
-		for (int i = 0; i < numberOfCars; i++) {
-			Car aCar = this.inventory[i];
-			if (aCar.getMpg() > bestMpg) {
-				bestMpg = aCar.getMpg();
-				rtn = aCar;
+        int bestMpg = -1;
+        for (Car aCar : this.inventory) {
+            if (aCar.getMpg() > bestMpg) {
+                bestMpg = aCar.getMpg();
+                rtn = aCar;
 			}
 		}
 		return rtn;
@@ -77,12 +74,11 @@ public class CarLot {
 	
 	public Car getCarWithHighestMileage() {
 		Car rtn = null;
-		int highestMileage = -1;
-		for (int i = 0; i < numberOfCars; i++) {
-			Car aCar = this.inventory[i];
-			if (aCar.getMileage() > highestMileage) {
-				highestMileage = aCar.getMileage();
-				rtn = aCar;
+        int highestMileage = -1;
+        for (Car aCar : this.inventory) {
+            if (aCar.getMileage() > highestMileage) {
+                highestMileage = aCar.getMileage();
+                rtn = aCar;
 			}
 		}
 		return rtn;
@@ -90,18 +86,16 @@ public class CarLot {
 	
 	public double getAverageMpg() {
 		double totalMpg = 0D;
-		for (int i = 0; i < numberOfCars; i++) {
-			Car aCar = this.inventory[i];
-			totalMpg += aCar.getMpg();
-		}
-		return totalMpg / this.numberOfCars;
+        for (Car aCar : this.inventory) {
+            totalMpg += aCar.getMpg();
+        }
+        return totalMpg / this.numberOfCars;
 	}
 	
 	public double getTotalProfit() {
 		double profit = 0D;
-		for (int i = 0; i < numberOfCars; i++) {
-			Car aCar = this.inventory[i];
-			profit += (aCar.isSold()?aCar.getProfit():0);
+        for (Car aCar : this.inventory) {
+            profit += (aCar.isSold() ? aCar.getProfit() : 0);
 		}
 		return profit;
 	}
