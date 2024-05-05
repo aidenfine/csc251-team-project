@@ -16,14 +16,20 @@ public class CarLot {
 		this.capacity = capacity;
 		this.inventory = new ArrayList<>(); // initialize as ArrayList
 	}
-	
+
 	public void addCar(String id, int mileage, int mpg, double cost, double salesPrice) {
 		if (numberOfCars < capacity) {
-			this.inventory.add(new Car(id, mileage, mpg, cost, salesPrice)); // add to ArrayList
-			numberOfCars++;
+			Car newCar = connectDB.addCar(id, mileage, mpg, cost, salesPrice);
+			if (newCar != null) {
+				this.inventory.add(newCar);
+				numberOfCars++;
+			} else {
+				System.out.println("Failed to add car to the inventory and database.");
+			}
 		}
 	}
-	
+
+
 	public ArrayList<Car> getInventory() {
 		ArrayList<Car> allCars = new ArrayList<Car>(); // specified type argument explicitly
 	    for (Car car : this.inventory) {
@@ -45,6 +51,7 @@ public class CarLot {
 		Car aCar = this.findCarByIdentifier(identifier);
 		if (aCar != null) {
 			aCar.sellCar(priceSold);
+			connectDB.sellCar(identifier, priceSold);
 		} else {
 			throw new IllegalArgumentException("No car with identifier " + identifier);
 		}
@@ -99,5 +106,5 @@ public class CarLot {
 		}
 		return profit;
 	}
-	
+
 }
