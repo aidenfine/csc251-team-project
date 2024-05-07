@@ -87,7 +87,7 @@ public class CarInventoryApp extends Application {
         HBox hBox = new HBox();
         hBox.setPadding(new Insets(10, 10, 10, 10));
         hBox.setSpacing(10);
-        hBox.getChildren().addAll(idInput, mileageInput, mpgInput, costInput, salesPriceInput, addButton, sellButton, profitButton);
+        hBox.getChildren().addAll(idInput, mileageInput, mpgInput, costInput, salesPriceInput, priceSoldInput, addButton, sellButton, profitButton);
 
         VBox vBox = new VBox();
         vBox.getChildren().addAll(table, hBox);
@@ -97,18 +97,43 @@ public class CarInventoryApp extends Application {
         primaryStage.show();
     }
 
-    // Get all cars
     private ObservableList<Car> getCars() {
-        ObservableList<Car> cars = FXCollections.observableArrayList();
-        cars.addAll(carLot.getInventory());
-        return cars;
+        return FXCollections.observableArrayList(carLot.getInventory());
     }
 
-    // Add button clicked
-    public void addButtonClicked() {
-        Car car = new Car(idInput.getText(), Integer.parseInt(mileageInput.getText()), Integer.parseInt(mpgInput.getText()), Double.parseDouble(costInput.getText()), Double.parseDouble(salesPriceInput.getText()));
-        carLot.addCar(car.getId(), car.getMileage(), car.getMpg(), car.getCost(), car.getSalesPrice());
-        table.getItems().add(car);
+    private void addButtonClicked() {
+        try {
+            Car car = new Car(idInput.getText(), Integer.parseInt(mileageInput.getText()), Integer.parseInt(mpgInput.getText()),
+                    Double.parseDouble(costInput.getText()), Double.parseDouble(salesPriceInput.getText()));
+            carLot.addCar(car.getId(), car.getMileage(), car.getMpg(), car.getCost(), car.getSalesPrice());
+            table.getItems().add(car);
+            clearInputs();
+        } catch (NumberFormatException e) {
+            showAlert("Input Error", "Please ensure all fields are filled correctly with numbers for mileage, mpg, cost, and sales price.");
+        }
+    }
+
+    private void sellButtonClicked() {
+        try {
+            ObservableList<Car> selectedCars = table.getSelectionModel().getSelectedItems();
+            double priceSold = Double.parseDouble(priceSoldInput.getText());
+            selectedCars.forEach(car -> {
+                car.sellCar(priceSold);
+                carLot.sellCar(car.getId(), car.getPriceSold());
+            });
+            table.refresh();
+            priceSoldInput.clear();
+        } catch (NumberFormatException e) {
+            showAlert("Input Error", "Please enter a valid price for selling the car.");
+        }
+    }
+
+    private void profitButtonClicked() {
+        double totalProfit = carLot.getTotalProfit();
+        showAlert("Total Profit", "The total profit from sold cars is: $" + totalProfit);
+    }
+
+    private void clearInputs() {
         idInput.clear();
         mileageInput.clear();
         mpgInput.clear();
@@ -116,27 +141,11 @@ public class CarInventoryApp extends Application {
         salesPriceInput.clear();
     }
 
-    // Sell button clicked
-    public void sellButtonClicked() {
-        ObservableList<Car> carsSelected, allCars;
-        allCars = table.getItems();
-        carsSelected = table.getSelectionModel().getSelectedItems();
-
-        carsSelected.forEach(car -> {
-            car.sellCar(Double.parseDouble(priceSoldInput.getText()));
-            carLot.sellCar(car.getId(), car.getPriceSold());
-        });
-        priceSoldInput.clear();
-        table.setItems(getCars());
-    }
-
-    // Show total profit
-    public void profitButtonClicked() {
-        double totalProfit = carLot.getTotalProfit();
+    private void showAlert(String title, String content) {
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle("Total Profit");
-        alert.setHeaderText("The total profit from sold cars is:");
-        alert.setContentText(String.valueOf(totalProfit));
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(content);
         alert.showAndWait();
     }
 }
